@@ -59,7 +59,6 @@
 <header style="display:flex; align-items:center; justify-content:center; gap:12px; padding:20px; background:#006633; color:white; border-radius:0px; box-shadow:0 2px 6px rgba(0,0,0,0.5); text-align: center;">
   <div>
     <img src="BKS24 TRIAL.png" style="align-items: center; max-width: 50%; max-height: 50%;">
-    <h2 class="title1">Lechia Gdańsk – aktualności i mecze</h2>
   </div>
 </header>
 
@@ -143,25 +142,25 @@ Data.mecze.forEach(mecz => {
   </script>
 
   <h2>Tabela Ekstraklasy</h2>
-  <table>
+  <table id="ekstraklasa-table">
     <thead>
       <tr>
-        <th>Pozycja</th>
-        <th>Drużyna</th>
-        <th>M</th>
-        <th>W</th>
-        <th>R</th>
-        <th>P</th>
-        <th>Pkt</th>
+        <th data-key="pozycja">Pozycja</th>
+        <th data-key="druzyna">Drużyna</th>
+        <th data-key="M">M</th>
+        <th data-key="W">W</th>
+        <th data-key="R">R</th>
+        <th data-key="P">P</th>
+        <th data-key="Pkt">Pkt</th>
       </tr>
     </thead>
-    <tbody id="ekstraklasa">
+    <tbody id="ekstraklasa-tbody">
     </tbody>
   </table>
 
-  <script>
-const data = {
-  "tabela": [
+<script>
+const ekstraklasa = {
+  tabela: [
     {"pozycja":1,"druzyna":"Wisła Płock","logo":"logo/wislap.png","M":7,"W":5,"R":1,"P":1,"Pkt":16},
     {"pozycja":2,"druzyna":"Górnik Zabrze","logo":"logo/gornik.png","M":8,"W":5,"R":0,"P":3,"Pkt":15},
     {"pozycja":3,"druzyna":"Cracovia Kraków","logo":"logo/cracovia.png","M":7,"W":4,"R":2,"P":1,"Pkt":14},
@@ -183,24 +182,47 @@ const data = {
   ]
 };
 
-const ekstraklasatbody = document.getElementById('ekstraklasa');
+let sortDirection = {};
 
-data.tabela.forEach(team => {
-  const tr = document.createElement('tr');
+function renderTable(tabela) {
+  const tbody = document.getElementById('ekstraklasa-tbody');
+  tbody.innerHTML = '';
   
-  const nazwaDruzyny = team.druzyna === "Lechia Gdańsk" ? `<b>${team.druzyna}</b>` : team.druzyna;
+  tabela.forEach(team => {
+    const nazwaDruzyny = team.druzyna === "Lechia Gdańsk" ? `<b>${team.druzyna}</b>` : team.druzyna;
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${team.pozycja}</td>
+      <td><img src="${team.logo}" alt="${team.druzyna}" style="width:30px;height:30px;vertical-align:middle;margin-right:5px;">${nazwaDruzyny}</td>
+      <td>${team.M}</td>
+      <td>${team.W}</td>
+      <td>${team.R}</td>
+      <td>${team.P}</td>
+      <td>${team.Pkt}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
 
-  tr.innerHTML = `
-    <td>${team.pozycja}</td>
-    <td><img src="${team.logo}" alt="${team.druzyna}" style="width:30px; height:30px; vertical-align: middle; margin-right:8px;">${nazwaDruzyny}</td>
-    <td>${team.M}</td>
-    <td>${team.W}</td>
-    <td>${team.R}</td>
-    <td>${team.P}</td>
-    <td>${team.Pkt}</td>
-  `;
+renderTable(ekstraklasa.tabela);
 
-  ekstraklasatbody.appendChild(tr);
+document.querySelectorAll('#ekstraklasa-table th').forEach(th => {
+  th.style.cursor = 'pointer';
+  th.addEventListener('click', () => {
+    const key = th.dataset.key;
+    const direction = sortDirection[key] === 'asc' ? 'desc' : 'asc';
+    sortDirection[key] = direction;
+
+    ekstraklasa.tabela.sort((a, b) => {
+      if (typeof a[key] === 'number') {
+        return direction === 'asc' ? a[key] - b[key] : b[key] - a[key];
+      } else {
+        return direction === 'asc' ? a[key].localeCompare(b[key]) : b[key].localeCompare(a[key]);
+      }
+    });
+
+    renderTable(ekstraklasa.tabela);
+  });
 });
 </script>
 
